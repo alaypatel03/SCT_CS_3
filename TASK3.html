@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Password Strength Assesment Tool </title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(to top right, #5cacee, #dfeffd);
+      color: #333;
+      font-size: 18px;
+    }
+    .checker-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 320px;
+    }
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    #passwordInput {
+      width: 85%;
+      padding: 0.75rem;
+      padding-right: 2.5rem;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    #passwordInput:focus {
+      border-color: #70a0ff;
+      outline: none;
+    }
+    .toggle-icon {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #666;
+      user-select: none;
+    }
+    .meter {
+      background-color: #e0e0e0;
+      border-radius: 8px;
+      margin: 1rem 0;
+      height: 12px;
+      overflow: hidden;
+    }
+    #meterBar {
+      height: 100%;
+      width: 0%;
+      border-radius: 8px;
+      transition: width 0.4s ease, background-color 0.4s ease;
+    }
+    #feedback {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    @media (max-width: 360px) {
+      .checker-container {
+        padding: 1.5rem;
+        width: 90%;
+      }
+      body {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="checker-container">
+    <h2>Create a Strong Password</h2>
+    
+    <div class="password-wrapper">
+      <input type="password" id="passwordInput" placeholder="Type your password…" aria-label="Password" />
+      <span id="toggleIcon" class="toggle-icon" aria-pressed="false" title="Show Password">👁️</span>
+    </div>
+    
+    <div id="feedback">Start typing...</div>
+    <div class="meter"><div id="meterBar"></div></div>
+  </div>
+
+  <script>
+    const pwInput = document.getElementById('passwordInput');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const feedback = document.getElementById('feedback');
+    const meterBar = document.getElementById('meterBar');
+
+    toggleIcon.addEventListener('click', () => {
+      const isHidden = pwInput.type === 'password';
+      pwInput.type = isHidden ? 'text' : 'password';
+      toggleIcon.textContent = isHidden ? '🙈' : '👁️';
+      toggleIcon.setAttribute('aria-pressed', isHidden);
+      toggleIcon.title = isHidden ? 'Hide Password' : 'Show Password';
+    });
+
+    pwInput.addEventListener('input', () => {
+      const pw = pwInput.value;
+      const checks = {
+        length: pw.length >= 8,
+        hasUpper: /[A-Z]/.test(pw),
+        hasLower: /[a-z]/.test(pw),
+        hasNumber: /[0-9]/.test(pw),
+        hasSpecial: /[^A-Za-z0-9]/.test(pw),
+      };
+      const score = Object.values(checks).filter(v => v).length;
+      const labels = ["Very Weak","Weak","Fair","Good","Strong","Excellent"];
+      const colors = ["#d73f40","#dc6551","#f2b84f","#bde952","#3ba62f","#2e8b57"];
+
+      meterBar.style.width = `${(score / 5) * 100}%`;
+      meterBar.style.backgroundColor = colors[score];
+      feedback.textContent = labels[score];
+
+      if (!checks.length) feedback.textContent += " • Make it at least 8 characters";
+      else if (!checks.hasUpper) feedback.textContent += " • Add an uppercase letter";
+      else if (!checks.hasLower) feedback.textContent += " • Add a lowercase letter";
+      else if (!checks.hasNumber) feedback.textContent += " • Add a number";
+      else if (!checks.hasSpecial) feedback.textContent += " • Add a symbol (!@#$…)";
+    });
+  </script>
+</body>
+</html>
